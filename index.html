@@ -1,0 +1,84 @@
+<!-- 放到htdocs裡面 用xampp開啟 用localhost/Hi/public/index.html開啟 這樣就可以了 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+</head>
+<script>
+    window.onload = function () {
+    
+
+        uid.onblur = function () {
+            fetch(`http://localhost/Hi/public/api/accountExist/${uid.value}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (jsonObj) {
+                    if (jsonObj['result']) {
+                        mylabel.innerHTML = '帳號已存在';
+                    }
+                    else {
+                        mylabel.innerHTML = '帳號可使用';
+                    }
+                });
+        };
+
+        $('#dialog').dialog({
+            autoOpen: false,
+            width: 350,
+        });
+
+        $('#bn').click(function () {
+            $('#dialog').dialog('open');
+        });
+
+        $('#register').click(function (e) {
+            e.preventDefault();
+            fetch('http://localhost/Hi/public/api/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    uid: uid.value,
+                    pwd: pwd.value,
+                    confirmPwd: confirmPwd.value
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+
+                    if (data.result === "註冊成功") {
+                        alert("註冊成功！");
+                    } else {
+                        alert("註冊失敗：" + data.error);
+                    }
+                });
+        });
+    }
+</script>
+
+<body>
+    <button id="bn">註冊</button>
+
+    <div id="dialog" title="註冊">
+        <form id="myform" >
+            User ID: <input id="uid" type="text" name="uid"><label id='mylabel'>o</label>
+            <br>
+            Password: <input id="pwd" type="password" name="pwd"><br>
+            Confirm: <input id="confirmPwd" type="password" name="confirmPwd"><br>
+            <button id="register" type="submit" value="註冊">註冊</button>
+        </form>
+    </div>
+</body>
+
+</html>
